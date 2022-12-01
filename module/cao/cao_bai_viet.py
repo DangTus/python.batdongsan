@@ -25,6 +25,8 @@ def lay_anh(bai_viet_html):
 
 
 def cao_bai_viet():
+    global bai_viet
+
     browser.get("https://batdongsan.com.vn/nha-dat-ban")
 
     list_bai_viet_html = browser.find_elements(
@@ -60,6 +62,3 @@ def cao_bai_viet():
 
         # in
         print(bv.__dict__, '\n\n')
-
-
-cao_bai_viet()
