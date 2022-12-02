@@ -4,6 +4,9 @@ class bai_viet_class(object):
         pass
 
     # set
+    def set_id(self, id):
+        self.id = id
+
     def set_ten(self, ten):
         self.ten = ten
 
