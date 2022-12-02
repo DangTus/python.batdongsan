@@ -1,5 +1,11 @@
-# from model import bai_viet
-# from module.cao import cao_bai_viet
+from fastapi import FastAPI
+from module.api import get
+
+app = FastAPI()
+
+@app.get("/getapi/")
+def getall():
+    return  get.get()  
 
 
-# cao_bai_viet.cao_bai_viet()
+
