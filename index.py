@@ -3,9 +3,7 @@ from module.api import get
 
 app = FastAPI()
 
+
 @app.get("/getapi/")
 def getall():
-    return  get.get()  
-
-
-
+    return get.get()
