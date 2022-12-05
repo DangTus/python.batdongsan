@@ -1,5 +1,4 @@
 import mysql.connector
-from model import bai_viet
 
 
 class connect():
@@ -32,6 +31,8 @@ def get_anh(id_baiviet):
 
     for x in myresult:
         list_hinh_anh.append(x['link'])
+
+    conn.close()
 
     return list_hinh_anh
 

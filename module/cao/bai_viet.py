@@ -2,7 +2,7 @@ class bai_viet_class(object):
     # constructor
     def __init__(self):
         pass
-
+    
     # set
     def set_id(self, id):
         self.id = id

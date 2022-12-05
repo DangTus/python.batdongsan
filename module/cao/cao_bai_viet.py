@@ -1,7 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import datetime
-from model import bai_viet
+import bai_viet
+import database
 
 ser = Service("./lib/chromedriver.exe")
 op = webdriver.ChromeOptions()
@@ -47,15 +48,14 @@ def xu_ly_ngay(date):
 
     return x.strftime(format_day)
 
+
 def xu_ly_dientich(dien_tich):
     don_vi_dien_tich = 'm²'
     return dien_tich.replace(don_vi_dien_tich, '').strip()
 
 
-def cao_bai_viet():
-    global bai_viet
-
-    browser.get("https://batdongsan.com.vn/nha-dat-ban")
+def cao_bai_viet_theo_trang(link_trang, list_top10_id_moinhat):
+    browser.get(link_trang)
 
     list_bai_viet_html = browser.find_elements(
         'xpath', '//div[@id="product-lists-web"]/div')
@@ -64,6 +64,14 @@ def cao_bai_viet():
 
     for bai_viet_html in list_bai_viet_html:
         bv = bai_viet.bai_viet_class()
+
+        id = bai_viet_html.find_element(
+            'xpath', './a').get_attribute('data-product-id')
+        # kiểm tra id bài viết đã có trong database chưa
+        if (id in list_top10_id_moinhat):
+            break
+        else:
+            bv.set_id(id)
 
         tieu_de = bai_viet_html.find_element(
             'xpath', './/h3[@class="re__card-title"]/span').text
@@ -75,8 +83,8 @@ def cao_bai_viet():
 
         dia_chi = bai_viet_html.find_element(
             'xpath', './/div[@class="re__card-location"]').text
-        quan = dia_chi.split(',')[0]
-        tinh = dia_chi.split(',')[1]
+        quan = dia_chi.split(',')[0].strip()
+        tinh = dia_chi.split(',')[1].strip()
         bv.set_tinhthanh(tinh)
         bv.set_quanhuyen(quan)
 
@@ -91,5 +99,26 @@ def cao_bai_viet():
         list_link_anh = lay_anh(bai_viet_html)
         bv.set_listlinkanh(list_link_anh)
 
-        # in
-        print(bv.__dict__, '\n\n')
+        list_bai_viet.append(bv.__dict__)
+
+    return list_bai_viet
+
+
+def cao_bai_viet():
+    # lấy số trang
+    link = 'https://batdongsan.com.vn/nha-dat-ban'
+    browser.get(link)
+    so_trang = browser.find_elements(
+        'xpath', '//a[@pid]')[-2].get_attribute('pid')
+
+    # lấy top 10 id mới nhất trong database
+    list_top10_id_moinhat = database.get_top10_id_moinhat()
+
+    # cào bài viết theo trang
+    for i in range(1, 11):
+        link_trang = f'{link}/p{i}'
+        list_bai_viet_theo_trang = cao_bai_viet_theo_trang(
+            link_trang, list_top10_id_moinhat)
+
+
+cao_bai_viet()
