@@ -1,12 +1,14 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+
 import datetime
 import bai_viet
 import database
-
+import collections
+from time import sleep
+import threading
 ser = Service("./lib/chromedriver.exe")
 op = webdriver.ChromeOptions()
-browser = webdriver.Chrome(service=ser, options=op)
 
 
 def xu_ly_gia(gia):
@@ -23,7 +25,7 @@ def xu_ly_gia(gia):
 
 def lay_anh(bai_viet_html):
     list_hinh_anh = bai_viet_html.find_elements(
-        'xpath', './/img')
+        'xpath', './/img[@alt="Ảnh đại diện"]')
 
     list_hinh_anh_bai_viet = []
 
@@ -55,6 +57,8 @@ def xu_ly_dientich(dien_tich):
 
 
 def cao_bai_viet_theo_trang(link_trang, list_top10_id_moinhat):
+
+    browser = webdriver.Chrome(service=ser, options=op)
     browser.get(link_trang)
 
     list_bai_viet_html = browser.find_elements(
@@ -101,24 +105,39 @@ def cao_bai_viet_theo_trang(link_trang, list_top10_id_moinhat):
 
         list_bai_viet.append(bv.__dict__)
 
+    browser.close()
     return list_bai_viet
 
 
 def cao_bai_viet():
     # lấy số trang
+    browser = webdriver.Chrome(service=ser, options=op)
     link = 'https://batdongsan.com.vn/nha-dat-ban'
     browser.get(link)
     so_trang = browser.find_elements(
         'xpath', '//a[@pid]')[-2].get_attribute('pid')
-
+    browser.close()
     # lấy top 10 id mới nhất trong database
     list_top10_id_moinhat = database.get_top10_id_moinhat()
 
+    list_bai_viet_theo_trang = []
     # cào bài viết theo trang
     for i in range(1, 11):
+
         link_trang = f'{link}/p{i}'
+
         list_bai_viet_theo_trang = cao_bai_viet_theo_trang(
             link_trang, list_top10_id_moinhat)
+        database.them_bai_viet_vao_database(list_bai_viet_theo_trang)
 
 
+dt1 = datetime.datetime.now()
 cao_bai_viet()
+dt2 = datetime.datetime.now()
+print(dt2-dt1)
+# print(len(cao_bai_viet()[1]))
+# data = cao_bai_viet_theo_trang('https://batdongsan.com.vn/nha-dat-ban/p1', [])
+
+# for x in data:
+
+#    print(collections.Counter(x['list_link_anh']))

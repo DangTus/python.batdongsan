@@ -2,13 +2,13 @@ class bai_viet_class(object):
     # constructor
     def __init__(self):
         pass
-    
+
     # set
     def set_id(self, id):
         self.id = id
 
     def set_ten(self, ten):
-        self.ten = ten
+        self.ten = ten.replace('"', "'")
 
     def set_gia(self, gia):
         self.gia = gia
